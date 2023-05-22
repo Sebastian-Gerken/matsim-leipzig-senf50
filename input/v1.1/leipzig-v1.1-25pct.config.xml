@@ -6,7 +6,7 @@
     </module>
 
     <module name="controler">
-        <param name="lastIteration" value="600"/>
+        <param name="lastIteration" value="1"/>
         <param name="overwriteFiles" value="failIfDirectoryExists"/>
         <param name="runId" value="leipzig-25pct"/>
         <param name="outputDirectory" value="./output/output-leipzig-25pct"/>
@@ -112,7 +112,7 @@
         <param name="chainBasedModes" value="car,bike"/>
         <param name="modes" value="car,pt,bike,walk"/>
         <param name="considerCarAvailability" value="true"/>
-        <param name="behavior" value="betweenAllAndFewerConstraints"/>
+        <param name="behavior" value="fromSpecifiedModesToSpecifiedModes"/>
         <param name="probaForRandomSingleTripMode" value="0.5" />
         <param name="coordDistance" value="50"/>
     </module>
