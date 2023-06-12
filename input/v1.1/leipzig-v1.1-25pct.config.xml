@@ -7,7 +7,7 @@
 
     <module name="controler">
         <param name="lastIteration" value="1"/>
-        <param name="overwriteFiles" value="failIfDirectoryExists"/>
+        <param name="overwriteFiles" value="deleteDirectoryIfExists"/>
         <param name="runId" value="leipzig-25pct"/>
         <param name="outputDirectory" value="./output/output-leipzig-25pct"/>
         <param name="writeEventsInterval" value="100"/>
@@ -19,7 +19,7 @@
     <module name="global">
         <param name="coordinateSystem" value="EPSG:25832"/>
         <param name="insistingOnDeprecatedConfigVersion" value="false"/>
-        <param name="numberOfThreads" value="6"/>
+        <param name="numberOfThreads" value="10"/>
     </module>
 
     <module name="network">

@@ -8,16 +8,18 @@ import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import com.graphhopper.jsprit.core.util.Time;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.matsim.analysis.*;
 import org.matsim.analysis.emissions.RunOfflineAirPollutionAnalysisByVehicleCategory;
 import org.matsim.analysis.personMoney.PersonMoneyEventsAnalysisModule;
+import org.matsim.api.core.v01.Coord;
+import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
-import org.matsim.api.core.v01.population.Person;
-import org.matsim.api.core.v01.population.Plan;
+import org.matsim.api.core.v01.population.*;
 import org.matsim.application.MATSimAppCommand;
 import org.matsim.application.MATSimApplication;
 import org.matsim.application.analysis.CheckPopulation;
@@ -59,6 +61,8 @@ import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.router.AnalysisMainModeIdentifier;
 import org.matsim.core.router.MultimodalLinkChooser;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
+import org.matsim.core.utils.geometry.CoordUtils;
+import org.matsim.core.utils.geometry.CoordinateTransformation;
 import org.matsim.core.utils.io.IOUtils;
 import org.matsim.extensions.pt.fare.intermodalTripFareCompensator.IntermodalTripFareCompensatorConfigGroup;
 import org.matsim.extensions.pt.fare.intermodalTripFareCompensator.IntermodalTripFareCompensatorsConfigGroup;
@@ -215,7 +219,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 				link.setAllowedModes(newModes);
 			}
 
-			link.setFreespeed(link.getFreespeed()/2);
+			//link.setFreespeed(link.getFreespeed()/2);
 
 		}
 
@@ -228,6 +232,37 @@ public class RunLeipzigScenario extends MATSimApplication {
 		if (tempo30Zone) {
 			SpeedReduction.implementPushMeasuresByModifyingNetworkInArea(scenario.getNetwork(), ShpGeometryUtils.loadPreparedGeometries(IOUtils.resolveFileOrResource(shp.getShapeFile().toString())), relativeSpeedChange);
 		}
+
+		// Agenten generierung
+		PopulationFactory populationFactory = scenario.getPopulation().getFactory();
+
+		Id<Person> id = Id.createPersonId("Max");
+		Person max = populationFactory.createPerson(Id.createPersonId(id));
+
+		Plan plan = populationFactory.createPlan();
+		max.addPlan(plan);
+		max.getAttributes().putAttribute("subpopulation", "person");
+
+		Coord homeCord = CoordUtils.createCoord(739543,5691971);
+
+		Activity homeAct = populationFactory.createActivityFromCoord("home_600", homeCord);
+		homeAct.setEndTime(8 * 3600);
+		plan.addActivity(homeAct);
+
+		Leg leg1 = populationFactory.createLeg("car");
+		plan.addLeg(leg1);
+		Activity workAct = populationFactory.createActivityFromCoord("work_600", CoordUtils.createCoord(735680.9, 5692451.2));
+		workAct.setEndTime(17 * 3600);
+		plan.addActivity(workAct);
+
+		Leg leg2 = populationFactory.createLeg("car");
+		plan.addLeg(leg2);
+
+		Activity homeAct2 = populationFactory.createActivityFromCoord("home_600", homeCord);
+		plan.addActivity(homeAct2);
+
+		scenario.getPopulation().addPerson(max);
+
 	}
 
 	@Override
