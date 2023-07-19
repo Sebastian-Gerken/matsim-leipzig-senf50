@@ -108,6 +108,8 @@ import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 })
 public class RunLeipzigScenario extends MATSimApplication {
 
+	private Boolean useRoadPricing = true;
+
 	private static final Logger log = LogManager.getLogger(RunLeipzigScenario.class);
 
 	static final String VERSION = "1.1";
@@ -239,7 +241,11 @@ public class RunLeipzigScenario extends MATSimApplication {
 			SpeedReduction.implementPushMeasuresByModifyingNetworkInArea(scenario.getNetwork(), ShpGeometryUtils.loadPreparedGeometries(IOUtils.resolveFileOrResource(shp.getShapeFile().toString())), relativeSpeedChange);
 		}
 
+		if (useRoadPricing){
 		createCustomRoadPricingScheme(scenario);
+	}
+
+
 	}
 
 	@Override
@@ -340,7 +346,10 @@ public class RunLeipzigScenario extends MATSimApplication {
 			Bicycles.addAsOverridingModule(controler);
 		}
 
+		if (useRoadPricing){
 		controler.addOverridingModule( new RoadPricingModule() );
+	}
+
 	}
 
 	private void prepareDrtFareCompensation(Config config, Controler controler, Set<String> nonPtModes, Double ptBaseFare) {
@@ -411,6 +420,8 @@ public class RunLeipzigScenario extends MATSimApplication {
 	//}
 
 	private static void createCustomRoadPricingScheme( Scenario scenario){
+
+
 		RoadPricingSchemeImpl scheme = addOrGetMutableRoadPricingScheme(scenario );
 
 		/* Configure roadpricing scheme. */
@@ -418,12 +429,16 @@ public class RunLeipzigScenario extends MATSimApplication {
 		setType(scheme, TOLL_TYPE_LINK);
 		setDescription(scheme, "Custom coded road pricing scheme");
 
-
+		CoordInFeatureChecker checker = new CoordInFeatureChecker("qgis/test.shp");
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
-			if (link.getFreespeed() <= 30/3.6){
-				addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 100 );
+			//if (link.getFreespeed() <= 30/3.6){
+			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
+			//}
+
+			if (checker.checkIfLinkInFeature(link, link.getId().toString()) ){
+				addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10);
 			}
 
 		}
@@ -455,6 +470,4 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 	}
 
-
 }
-
