@@ -8,16 +8,18 @@ import com.google.common.collect.Sets;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import com.graphhopper.jsprit.core.util.Time;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.matsim.analysis.*;
 import org.matsim.analysis.emissions.RunOfflineAirPollutionAnalysisByVehicleCategory;
 import org.matsim.analysis.personMoney.PersonMoneyEventsAnalysisModule;
+import org.matsim.api.core.v01.Coord;
+import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
 import org.matsim.api.core.v01.network.Link;
-import org.matsim.api.core.v01.population.Person;
-import org.matsim.api.core.v01.population.Plan;
+import org.matsim.api.core.v01.population.*;
 import org.matsim.application.MATSimAppCommand;
 import org.matsim.application.MATSimApplication;
 import org.matsim.application.analysis.CheckPopulation;
@@ -44,6 +46,7 @@ import org.matsim.contrib.drt.run.MultiModeDrtModule;
 import org.matsim.contrib.dvrp.run.DvrpConfigGroup;
 import org.matsim.contrib.dvrp.run.DvrpModule;
 import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
+import org.matsim.contrib.roadpricing.*;
 import org.matsim.contrib.vsp.scenario.SnzActivities;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
@@ -59,7 +62,10 @@ import org.matsim.core.replanning.strategies.DefaultPlanStrategiesModule;
 import org.matsim.core.router.AnalysisMainModeIdentifier;
 import org.matsim.core.router.MultimodalLinkChooser;
 import org.matsim.core.scoring.functions.ScoringParametersForPerson;
+import org.matsim.core.utils.geometry.CoordUtils;
+import org.matsim.core.utils.geometry.CoordinateTransformation;
 import org.matsim.core.utils.io.IOUtils;
+import org.matsim.core.utils.io.UncheckedIOException;
 import org.matsim.extensions.pt.fare.intermodalTripFareCompensator.IntermodalTripFareCompensatorConfigGroup;
 import org.matsim.extensions.pt.fare.intermodalTripFareCompensator.IntermodalTripFareCompensatorsConfigGroup;
 import org.matsim.extensions.pt.fare.intermodalTripFareCompensator.IntermodalTripFareCompensatorsModule;
@@ -80,6 +86,10 @@ import playground.vsp.simpleParkingCostHandler.ParkingCostModule;
 import javax.annotation.Nullable;
 import java.nio.file.Path;
 import java.util.*;
+
+import static org.matsim.contrib.roadpricing.RoadPricingScheme.TOLL_TYPE_DISTANCE;
+import static org.matsim.contrib.roadpricing.RoadPricingScheme.TOLL_TYPE_LINK;
+import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 
 /**
  * Run the Leipzig scenario.  All the upstream stuff (network generation, initial demand generation) is in the Makefile.
@@ -214,6 +224,9 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 				link.setAllowedModes(newModes);
 			}
+
+			//link.setFreespeed(link.getFreespeed()/2);
+
 		}
 
 		if (drt) {
@@ -225,6 +238,8 @@ public class RunLeipzigScenario extends MATSimApplication {
 		if (tempo30Zone) {
 			SpeedReduction.implementPushMeasuresByModifyingNetworkInArea(scenario.getNetwork(), ShpGeometryUtils.loadPreparedGeometries(IOUtils.resolveFileOrResource(shp.getShapeFile().toString())), relativeSpeedChange);
 		}
+
+		createCustomRoadPricingScheme(scenario);
 	}
 
 	@Override
@@ -324,6 +339,8 @@ public class RunLeipzigScenario extends MATSimApplication {
 		if (bike) {
 			Bicycles.addAsOverridingModule(controler);
 		}
+
+		controler.addOverridingModule( new RoadPricingModule() );
 	}
 
 	private void prepareDrtFareCompensation(Config config, Controler controler, Set<String> nonPtModes, Double ptBaseFare) {
@@ -383,12 +400,61 @@ public class RunLeipzigScenario extends MATSimApplication {
 		modeChoiceConfigGroup.setModes(modes.toArray(new String[0]));
 	}
 
-	@Override
-	protected List<MATSimAppCommand> preparePostProcessing(Path outputFolder, String runId) {
 
-		String hbefaFileWarm = "https://svn.vsp.tu-berlin.de/repos/public-svn/3507bb3997e5657ab9da76dbedbb13c9b5991d3e/0e73947443d68f95202b71a156b337f7f71604ae/7eff8f308633df1b8ac4d06d05180dd0c5fdf577.enc";
-		String hbefaFileCold = "https://svn.vsp.tu-berlin.de/repos/public-svn/3507bb3997e5657ab9da76dbedbb13c9b5991d3e/0e73947443d68f95202b71a156b337f7f71604ae/ColdStart_Vehcat_2020_Average_withHGVetc.csv.enc";
+	//@Override
+	//protected List<MATSimAppCommand> preparePostProcessing(Path outputFolder, String runId) {
 
-		return List.of(new RunOfflineAirPollutionAnalysisByVehicleCategory(outputFolder.toString(), runId, hbefaFileWarm, hbefaFileCold, outputFolder.toString()));
+	//	String hbefaFileWarm = "https://svn.vsp.tu-berlin.de/repos/public-svn/3507bb3997e5657ab9da76dbedbb13c9b5991d3e/0e73947443d68f95202b71a156b337f7f71604ae/7eff8f308633df1b8ac4d06d05180dd0c5fdf577.enc";
+	//	String hbefaFileCold = "https://svn.vsp.tu-berlin.de/repos/public-svn/3507bb3997e5657ab9da76dbedbb13c9b5991d3e/0e73947443d68f95202b71a156b337f7f71604ae/ColdStart_Vehcat_2020_Average_withHGVetc.csv.enc";
+
+	//	return List.of(new RunOfflineAirPollutionAnalysisByVehicleCategory(outputFolder.toString(), runId, hbefaFileWarm, hbefaFileCold, outputFolder.toString()));
+	//}
+
+	private static void createCustomRoadPricingScheme( Scenario scenario){
+		RoadPricingSchemeImpl scheme = addOrGetMutableRoadPricingScheme(scenario );
+
+		/* Configure roadpricing scheme. */
+		setName(scheme, "custom");
+		setType(scheme, TOLL_TYPE_LINK);
+		setDescription(scheme, "Custom coded road pricing scheme");
+
+
+
+		for (Link link : scenario.getNetwork().getLinks().values()){
+
+			if (link.getFreespeed() <= 30/3.6){
+				addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 100 );
+			}
+
+		}
+		/* Add the link-specific toll. */
+		//addLinkSpecificCost(scheme,
+		//	Id.createLinkId("link_4_5"),
+		//	Time.parseTimeToSeconds("00:00:00"),
+		//	Time.parseTimeToSeconds("30:00:00"),
+		//	100.0);
+
+		/* Add general toll. */
+		/*addLink(scheme, Id.createLinkId("link_1_2"));
+		addLink(scheme, Id.createLinkId("link_2_1"));
+		createAndAddGeneralCost(scheme,
+			Time.parseTimeToSeconds("06:00:00"),
+			Time.parseTimeToSeconds("10:00:00"),
+			10.0);*/
+
+		//Schreibt Roadpricing XML
+		RoadPricingWriterXMLv1 writer = new RoadPricingWriterXMLv1(scheme);
+
+		String filename = "roadpricing.xml";
+		try {
+			writer.writeFile(filename);
+			System.out.println("Die Roadpricing XML-Datei wurde erfolgreich erstellt: " + filename);
+		} catch (UncheckedIOException e) {
+			System.err.println("Fehler beim Erstellen der Roadpricing XML-Datei: " + e.getMessage());
+		}
+
 	}
+
+
 }
+
