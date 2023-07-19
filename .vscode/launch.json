@@ -1,0 +1,169 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "ActivitiesOnPtLinkAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.ActivitiesOnPtLinkAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "ActivityLocationAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.ActivityLocationAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "BikeRouteAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.BikeRouteAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "DrtServiceQualityAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.DrtServiceQualityAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "DrtVehiclesRoadUsageAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.DrtVehiclesRoadUsageAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "ExtractPersonEvents",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.ExtractPersonEvents",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "ExtractPersonMoneyEvents",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.ExtractPersonMoneyEvents",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "ParkedVehiclesAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.ParkedVehiclesAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "ScoreAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.ScoreAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "VehiclesRoadUsageAnalysis",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.VehiclesRoadUsageAnalysis",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "RunOfflineAirPollutionAnalysisByVehicleCategory",
+            "request": "launch",
+            "mainClass": "org.matsim.analysis.emissions.RunOfflineAirPollutionAnalysisByVehicleCategory",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "RunLeipzigScenario",
+            "request": "launch",
+            "mainClass": "org.matsim.run.RunLeipzigScenario",
+            "projectName": "matsim-leipzig",
+            "args": ["--1pct", "run"] 
+        },
+        {
+            "type": "java",
+            "name": "ChangeDrtModeInPlans",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.ChangeDrtModeInPlans",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "CoordInFeatureChecker",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.CoordInFeatureChecker",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "CreateDrtStopsFromNetwork",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.CreateDrtStopsFromNetwork",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "CreatingCountsFromZaehldaten",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.CreatingCountsFromZaehldaten",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "DeleteRoutesFromPlans",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.DeleteRoutesFromPlans",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "FixNetwork",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.FixNetwork",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "LeipzigDrtVehicleCreator",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.LeipzigDrtVehicleCreator",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "PrepareDrtStops",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.PrepareDrtStops",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "PrepareNetwork",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.PrepareNetwork",
+            "projectName": "matsim-leipzig"
+        },
+        {
+            "type": "java",
+            "name": "PrepareTransitSchedule",
+            "request": "launch",
+            "mainClass": "org.matsim.run.prepare.PrepareTransitSchedule",
+            "projectName": "matsim-leipzig"
+        }
+    ]
+}
