@@ -429,7 +429,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 		setType(scheme, TOLL_TYPE_LINK);
 		setDescription(scheme, "Custom coded road pricing scheme");
 
-		CoordInFeatureChecker checker = new CoordInFeatureChecker("qgis/test.shp");
+		CoordInFeatureChecker checker = new CoordInFeatureChecker("qgis/uwz.shp");
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
@@ -437,7 +437,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
 			//}
 
-			if (checker.checkIfLinkInFeature(link, link.getId().toString()) ){
+			if (checker.checkIfLinkInFeature(link, "1") ){
 				addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10);
 			}
 

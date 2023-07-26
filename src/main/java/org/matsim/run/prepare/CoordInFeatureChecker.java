@@ -37,7 +37,7 @@ public class CoordInFeatureChecker {
 
         for (SimpleFeature feature : allFeatures) {
             Geometry geometry = (Geometry) feature.getDefaultGeometry();
-            featureMap.put((String) feature.getAttribute("Spaltenkopf_der_ID-Spalte"), geometry);
+            featureMap.put( (feature.getAttribute("id")).toString(), geometry);
         }
     }
 
