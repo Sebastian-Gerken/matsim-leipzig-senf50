@@ -18,6 +18,11 @@ import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
+import org.matsim.api.core.v01.events.LinkEnterEvent;
+import org.matsim.api.core.v01.events.PersonEntersVehicleEvent;
+import org.matsim.api.core.v01.events.PersonScoreEvent;
+import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
+import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.population.*;
 import org.matsim.application.MATSimAppCommand;
@@ -48,6 +53,7 @@ import org.matsim.contrib.dvrp.run.DvrpModule;
 import org.matsim.contrib.dvrp.run.DvrpQSimComponents;
 import org.matsim.contrib.roadpricing.*;
 import org.matsim.contrib.vsp.scenario.SnzActivities;
+import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.config.Config;
 import org.matsim.core.config.ConfigUtils;
 import org.matsim.core.config.groups.PlansCalcRouteConfigGroup;
@@ -78,12 +84,14 @@ import org.matsim.optDRT.OptDrtConfigGroup;
 import org.matsim.run.prepare.*;
 import org.matsim.smallScaleCommercialTrafficGeneration.CreateSmallScaleCommercialTrafficDemand;
 import org.matsim.utils.gis.shp2matsim.ShpGeometryUtils;
+import org.matsim.vehicles.Vehicle;
 import picocli.CommandLine;
 import playground.vsp.scoring.IncomeDependentUtilityOfMoneyPersonScoringParameters;
 import playground.vsp.simpleParkingCostHandler.ParkingCostConfigGroup;
 import playground.vsp.simpleParkingCostHandler.ParkingCostModule;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -108,7 +116,9 @@ import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 })
 public class RunLeipzigScenario extends MATSimApplication {
 
-	private Boolean useRoadPricing = true;
+	private Boolean useRoadPricing = false;
+
+	private Boolean useCarEnterPenalty = true;
 
 	private static final Logger log = LogManager.getLogger(RunLeipzigScenario.class);
 
@@ -275,6 +285,10 @@ public class RunLeipzigScenario extends MATSimApplication {
 				if (parkingCost) {
 					install(new ParkingCostModule());
 					install(new PersonMoneyEventsAnalysisModule());
+				}
+
+				if (useCarEnterPenalty) {
+					bind(CarEnterPenalty.class).asEagerSingleton();
 				}
 
 				addControlerListenerBinding().to(StrategyWeightFadeout.class).in(Singleton.class);
@@ -469,5 +483,44 @@ public class RunLeipzigScenario extends MATSimApplication {
 		}
 
 	}
+	static class CarEnterPenalty implements PersonEntersVehicleEventHandler, LinkEnterEventHandler {
 
+		private EventsManager eventsManager;
+
+		private Map<Id<Vehicle>, Id<Person>> vehicle2driver = new HashMap<>();
+
+		@Inject
+		CarEnterPenalty(EventsManager eventsManager) {
+			this.eventsManager = eventsManager;
+			this.eventsManager.addHandler(this);
+		}
+
+		@Override
+		public void reset(int iteration) {}
+
+		@Override
+		public void handleEvent(PersonEntersVehicleEvent event) {
+			vehicle2driver.put(event.getVehicleId(), event.getPersonId());
+		}
+
+		@Override
+		public void handleEvent(LinkEnterEvent event) {
+			if (tollingAt(event.getTime(), event.getLinkId())) {
+				final Id<Person> driverId = vehicle2driver.get( event.getVehicleId() );
+//				eventsManager.processEvent(new RainOnPersonEvent(event.getTime(), driverId ) );
+				eventsManager.processEvent( new PersonScoreEvent( event.getTime(), driverId, 10000., "CarEnterPenalty" ));
+			}
+		}
+
+		// tolling at link 1 starts at 7:30.
+		private boolean tollingAt(double time, Id<Link> linkId) {
+//			if
+//			(time > (7.5 * 60.0 * 60.0) && linkId.toString().equals("1")) {
+				return true;
+//			} else {
+//				return false;
+//			}
+		}
+
+	}
 }
