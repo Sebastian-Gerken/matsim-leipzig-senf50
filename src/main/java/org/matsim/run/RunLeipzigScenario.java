@@ -118,7 +118,7 @@ import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 })
 public class RunLeipzigScenario extends MATSimApplication {
 
-	private Boolean useRoadPricing = true;
+	private Boolean useRoadPricing = false;
 
 	private Boolean useCarEnterPenalty = false;
 
