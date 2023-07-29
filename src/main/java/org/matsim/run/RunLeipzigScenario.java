@@ -118,9 +118,9 @@ import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 })
 public class RunLeipzigScenario extends MATSimApplication {
 
-	private Boolean useRoadPricing = false;
+	private Boolean useRoadPricing = true;
 
-	private Boolean useCarEnterPenalty = false;
+	private Boolean useCarEnterPenalty = true;
 
 	private static final Logger log = LogManager.getLogger(RunLeipzigScenario.class);
 
@@ -445,9 +445,9 @@ public class RunLeipzigScenario extends MATSimApplication {
 		setType(scheme, TOLL_TYPE_LINK);
 		setDescription(scheme, "Custom coded road pricing scheme");
 
-		CoordInFeatureChecker tollLowEmissionZone = new CoordInFeatureChecker("qgis/toll_zones/environment.shp");
+/*		CoordInFeatureChecker tollLowEmissionZone = new CoordInFeatureChecker("qgis/toll_zones/environment.shp");
 		CoordInFeatureChecker tollResidentialArea = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");
-		CoordInFeatureChecker tollEducationZone = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");
+		CoordInFeatureChecker tollEducationZone = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");*/
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
@@ -457,7 +457,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
 			//}
 
-			Boolean inLowEmission = tollLowEmissionZone.checkIfLinkInFeature(link, "1");
+/*			Boolean inLowEmission = tollLowEmissionZone.checkIfLinkInFeature(link, "1");
 			Boolean inResidential = tollResidentialArea.checkIfLinkInFeature(link, "1");
 			Boolean inEducation = tollEducationZone.checkIfLinkInFeature(link, "1");
 
@@ -471,9 +471,9 @@ public class RunLeipzigScenario extends MATSimApplication {
 						tollCost *= 1.5;
 					}
 				}
-			}
+			}*/
 
-			addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), tollCost);
+			addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("48:00:00"), tollCost);
 
 		}
 		/* Add the link-specific toll. */
