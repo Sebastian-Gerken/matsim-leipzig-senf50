@@ -116,9 +116,9 @@ import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 })
 public class RunLeipzigScenario extends MATSimApplication {
 
-	private Boolean useRoadPricing = false;
+	private Boolean useRoadPricing = true;
 
-	private Boolean useCarEnterPenalty = true;
+	private Boolean useCarEnterPenalty = false;
 
 	private static final Logger log = LogManager.getLogger(RunLeipzigScenario.class);
 
@@ -449,7 +449,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
-			double tollCost = link.getLength() * 0.1; // initTollPricing based on distance
+			double tollCost = link.getLength() * 0.054 / 1000; // initTollPricing based on distance
 
 			//if (link.getFreespeed() <= 30/3.6){
 			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
@@ -459,15 +459,17 @@ public class RunLeipzigScenario extends MATSimApplication {
 			Boolean inResidential = tollResidentialArea.checkIfLinkInFeature(link, "1");
 			Boolean inEducation = tollEducationZone.checkIfLinkInFeature(link, "1");
 
-			if (inLowEmission){
-				tollCost = 1.0;
-				if (inResidential) {
-					tollCost += 1.0;
-					if (inEducation){
-						tollCost += 1.0;
+			if (link.getFreespeed() <= 30/3.6) {
+				if (inLowEmission) {
+					tollCost *= 1.2;
+					if (inResidential) {
+						tollCost *= 1.2;
+						if (inEducation) {
+							tollCost *= 1.2;
+						}
+					} else if (inEducation) {
+						tollCost *= 1.2;
 					}
-				} else if (inEducation) {
-					tollCost += 1.0;
 				}
 			}
 
