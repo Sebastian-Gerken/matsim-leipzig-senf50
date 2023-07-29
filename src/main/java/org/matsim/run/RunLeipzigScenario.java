@@ -451,7 +451,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
-			double tollCost = 0;
+			double tollCost = tollCost = link.getLength() * 0.054 / 1000; // initTollPricing based on distance
 
 			//if (link.getFreespeed() <= 30/3.6){
 			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
@@ -462,7 +462,6 @@ public class RunLeipzigScenario extends MATSimApplication {
 			Boolean inEducation = tollEducationZone.checkIfLinkInFeature(link, "1");
 
 			if (link.getFreespeed() <= 30/3.6) {
-				tollCost = link.getLength() * 0.054 / 1000; // initTollPricing based on distance
 				if (inLowEmission) {
 					tollCost *= 1.2;
 					if (inResidential) {
