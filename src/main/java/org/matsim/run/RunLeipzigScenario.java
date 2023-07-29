@@ -447,7 +447,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 		CoordInFeatureChecker tollLowEmissionZone = new CoordInFeatureChecker("qgis/toll_zones/environment.shp");
 		CoordInFeatureChecker tollResidentialArea = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");
-		CoordInFeatureChecker tollEducationZone = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");
+		CoordInFeatureChecker tollEducationZone = new CoordInFeatureChecker("qgis/toll_zones/education_bufferzone.shp");
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
