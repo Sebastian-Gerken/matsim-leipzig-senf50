@@ -118,9 +118,9 @@ import static org.matsim.contrib.roadpricing.RoadPricingUtils.*;
 })
 public class RunLeipzigScenario extends MATSimApplication {
 
-	private Boolean useRoadPricing = false;
+	private Boolean useRoadPricing = true;
 
-	private Boolean useCarEnterPenalty = false;
+	private Boolean useCarEnterPenalty = true;
 
 	private static final Logger log = LogManager.getLogger(RunLeipzigScenario.class);
 
@@ -451,7 +451,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
 
-			double tollCost = link.getLength() * 0.054 / 1000; // initTollPricing based on distance
+			double tollCost = 0;
 
 			//if (link.getFreespeed() <= 30/3.6){
 			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
@@ -462,6 +462,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 			Boolean inEducation = tollEducationZone.checkIfLinkInFeature(link, "1");
 
 			if (link.getFreespeed() <= 30/3.6) {
+				tollCost = link.getLength() * 0.054 / 1000; // initTollPricing based on distance
 				if (inLowEmission) {
 					tollCost *= 1.2;
 					if (inResidential) {
@@ -473,7 +474,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 				}
 			}
 
-			addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), tollCost);
+			addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("06:00:00"), Time.parseTimeToSeconds("19:00:00"), tollCost);
 
 		}
 		/* Add the link-specific toll. */
@@ -519,7 +520,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 
 		@Override
 		public void handleEvent(PersonDepartureEvent event) {
-			if (tollingAt(event.getTime(), event.getLinkId()) && event.getLegMode().equals("car")){
+			if (tollingAt(event.getTime()) && event.getLegMode().equals("car")){
 				if (event.getRoutingMode() != null){
 					if (event.getRoutingMode().equals("car")) {
 						eventsManager.processEvent(new PersonScoreEvent(event.getTime(), event.getPersonId(), -10, "CarEnterPenalty"));
@@ -528,14 +529,14 @@ public class RunLeipzigScenario extends MATSimApplication {
 			}
 		}
 
-		// tolling at link 1 starts at 7:30.
-		private boolean tollingAt(double time, Id<Link> linkId) {
-//			if
-//			(time > (7.5 * 60.0 * 60.0) && linkId.toString().equals("1")) {
+		// tolling at link 1 starts at 6:00.
+		private boolean tollingAt(double time) {
+			if
+			(time > (6 * 60.0 * 60.0) && time < (19 * 60 * 60)) {
 				return true;
-//			} else {
-//				return false;
-//			}
+			} else {
+				return false;
+			}
 
 		}
 
