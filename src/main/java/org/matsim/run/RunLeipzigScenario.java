@@ -18,10 +18,12 @@ import org.matsim.api.core.v01.Coord;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.Scenario;
 import org.matsim.api.core.v01.TransportMode;
+import org.matsim.api.core.v01.events.PersonDepartureEvent;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.PersonEntersVehicleEvent;
 import org.matsim.api.core.v01.events.PersonScoreEvent;
 import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
+import org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler;
 import org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler;
 import org.matsim.api.core.v01.network.Link;
 import org.matsim.api.core.v01.population.*;
@@ -483,11 +485,9 @@ public class RunLeipzigScenario extends MATSimApplication {
 		}
 
 	}
-	static class CarEnterPenalty implements PersonEntersVehicleEventHandler, LinkEnterEventHandler {
+	static class CarEnterPenalty implements PersonDepartureEventHandler {
 
 		private EventsManager eventsManager;
-
-		private Map<Id<Vehicle>, Id<Person>> vehicle2driver = new HashMap<>();
 
 		@Inject
 		CarEnterPenalty(EventsManager eventsManager) {
@@ -498,17 +498,15 @@ public class RunLeipzigScenario extends MATSimApplication {
 		@Override
 		public void reset(int iteration) {}
 
-		@Override
-		public void handleEvent(PersonEntersVehicleEvent event) {
-			vehicle2driver.put(event.getVehicleId(), event.getPersonId());
-		}
 
 		@Override
-		public void handleEvent(LinkEnterEvent event) {
-			if (tollingAt(event.getTime(), event.getLinkId())) {
-				final Id<Person> driverId = vehicle2driver.get( event.getVehicleId() );
-//				eventsManager.processEvent(new RainOnPersonEvent(event.getTime(), driverId ) );
-				eventsManager.processEvent( new PersonScoreEvent( event.getTime(), driverId, 10000., "CarEnterPenalty" ));
+		public void handleEvent(PersonDepartureEvent event) {
+			if (tollingAt(event.getTime(), event.getLinkId()) && event.getLegMode().equals("car")){
+				if (event.getRoutingMode() != null){
+					if (event.getRoutingMode().equals("car")) {
+						eventsManager.processEvent(new PersonScoreEvent(event.getTime(), event.getPersonId(), 10000, "CarEnterPenalty"));
+					}
+				}
 			}
 		}
 
@@ -520,6 +518,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 //			} else {
 //				return false;
 //			}
+
 		}
 
 	}
