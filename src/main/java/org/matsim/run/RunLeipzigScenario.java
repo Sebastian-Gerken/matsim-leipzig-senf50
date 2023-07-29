@@ -465,12 +465,10 @@ public class RunLeipzigScenario extends MATSimApplication {
 				if (inLowEmission) {
 					tollCost *= 1.2;
 					if (inResidential) {
-						tollCost *= 1.2;
-						if (inEducation) {
-							tollCost *= 1.2;
+						tollCost *= 1.1;
 						}
-					} else if (inEducation) {
-						tollCost *= 1.2;
+					if (inEducation) {
+						tollCost *= 1.5;
 					}
 				}
 			}
@@ -524,7 +522,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 			if (tollingAt(event.getTime(), event.getLinkId()) && event.getLegMode().equals("car")){
 				if (event.getRoutingMode() != null){
 					if (event.getRoutingMode().equals("car")) {
-						eventsManager.processEvent(new PersonScoreEvent(event.getTime(), event.getPersonId(), 10000, "CarEnterPenalty"));
+						eventsManager.processEvent(new PersonScoreEvent(event.getTime(), event.getPersonId(), -10, "CarEnterPenalty"));
 					}
 				}
 			}
