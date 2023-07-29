@@ -443,17 +443,35 @@ public class RunLeipzigScenario extends MATSimApplication {
 		setType(scheme, TOLL_TYPE_LINK);
 		setDescription(scheme, "Custom coded road pricing scheme");
 
-		CoordInFeatureChecker checker = new CoordInFeatureChecker("qgis/uwz.shp");
+		CoordInFeatureChecker tollLowEmissionZone = new CoordInFeatureChecker("qgis/toll_zones/environment.shp");
+		CoordInFeatureChecker tollResidentialArea = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");
+		CoordInFeatureChecker tollEducationZone = new CoordInFeatureChecker("qgis/toll_zones/residential.shp");
 
 		for (Link link : scenario.getNetwork().getLinks().values()){
+
+			double tollCost = link.getLength() * 0.1; // initTollPricing based on distance
 
 			//if (link.getFreespeed() <= 30/3.6){
 			//	addLinkSpecificCost( scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10 );
 			//}
 
-			if (checker.checkIfLinkInFeature(link, "1") ){
-				addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), 10);
+			Boolean inLowEmission = tollLowEmissionZone.checkIfLinkInFeature(link, "1");
+			Boolean inResidential = tollResidentialArea.checkIfLinkInFeature(link, "1");
+			Boolean inEducation = tollEducationZone.checkIfLinkInFeature(link, "1");
+
+			if (inLowEmission){
+				tollCost = 1.0;
+				if (inResidential) {
+					tollCost += 1.0;
+					if (inEducation){
+						tollCost += 1.0;
+					}
+				} else if (inEducation) {
+					tollCost += 1.0;
+				}
 			}
+
+			addLinkSpecificCost(scheme, link.getId(), Time.parseTimeToSeconds("00:00:00"), Time.parseTimeToSeconds("24:00:00"), tollCost);
 
 		}
 		/* Add the link-specific toll. */
