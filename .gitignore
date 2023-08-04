@@ -6,7 +6,7 @@
 output/
 scenarios/output
 test/output
-!test/output/matsim_processing
+!test/output/matsim_processing/
 
 *.gz
 !leipzig-v1.1-network.xml.gz
