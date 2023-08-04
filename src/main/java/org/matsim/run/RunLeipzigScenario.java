@@ -522,7 +522,7 @@ public class RunLeipzigScenario extends MATSimApplication {
 			if (tollingAt(event.getTime()) && event.getLegMode().equals("car")){
 				if (event.getRoutingMode() != null){
 					if (event.getRoutingMode().equals("car")) {
-						eventsManager.processEvent(new PersonScoreEvent(event.getTime(), event.getPersonId(), -10, "CarEnterPenalty"));
+						eventsManager.processEvent(new PersonScoreEvent(event.getTime(), event.getPersonId(), -3, "CarEnterPenalty"));
 					}
 				}
 			}
