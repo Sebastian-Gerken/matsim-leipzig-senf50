@@ -3,10 +3,12 @@
 
 
 # Common files to ignore when working with matsim
-output/
+output/*
 scenarios/output
 test/output
 !output/matsim_processing/
+output/matsim_processing/plots
+output/matsim_processing/code
 
 *.gz
 !leipzig-v1.1-network.xml.gz
